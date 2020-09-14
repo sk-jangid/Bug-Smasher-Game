@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+    canvas {
+    border:1px solid #d3d3d3;
+    background-size:100%;
+    background-repeat:no-repeat;
+}
+</style>
+</head>
+<body onload="startGame()">
+<p><label style="color:blue;font-size:20px;">Score:</label>&nbsp<label style="color:blue" id="score_value"></label>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+    <button onclick="reset()" style="color: blue;">Reset Score</button> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+    <button  onclick="resetSpeed()" style="color: blue;">Reset Speed</button> </p>
+<h1 style="color:blue;"> BugSmasher</h1>
+<script>
+    var canvas = document.createElement("canvas");
+    var ctx = canvas.getContext("2d");
+    canvas.width = 800;
+    canvas.height = 500;
+    document.body.appendChild(canvas);
+
+    var bgReady = false;
+    var bgImage = new Image();
+    bgImage.onload = function () {
+        bgReady = true;
+    };
+    bgImage.src = "images/background.jpg";
+
+    var bugReady = false;
+    var bugImage = new Image();
+    bugImage.onload = function () {
+        bugReady = true;
+    };
+    bugImage.src = "images/bug.png";
+
+    var bug = {
+        hopping_interval: 3000, // movement in pixels per second
+        x: 0,
+        y: 0
+    };
+    var timeout = setTimeout(timeOutFunction, bug.hopping_interval);
+    var score = 0;
+
+    function reset() {
+        render();
+    };
+
+    // Draw everything
+    var reset = function () {
+        bug.x = (Math.random() * (canvas.width - bugImage.width));
+        bug.y = (Math.random() * (canvas.height - bugImage.height));
+        if (bgReady) {
+            ctx.drawImage(bgImage, 0, 0);
+        }
+
+        if (bugReady) {
+            //bugImage.setColorToAlpha(255,255)
+            ctx.drawImage(bugImage, bug.x, bug.y);
+        }
+
+        // Score
+        ctx.fillStyle = "rgb(0, 0, 0)";
+        ctx.font = "24px Helvetica";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+
+        score=0;
+        bug.hopping_interval=4000;
+        clearTimeout(timeout);
+        timeout = setTimeout(timeOutFunction, bug.hopping_interval);
+        document.getElementById('score_value').innerHTML = String(score);
+    };
+
+    var resetSpeed = function (){
+        bug.hopping_interval = 4000;
+        clearTimeout(timeout)
+        timeout = setTimeout(timeOutFunction, bug.hopping_interval);
+
+    }
+
+
+    canvas.addEventListener("click", clickEvent,false);
+    function clickEvent(e) {
+        var rect = canvas.getBoundingClientRect();
+        var cursorX = e.clientX - rect.left;
+
+        var cursorY = e.clientY - rect.top;
+        
+        if(cursorX>=bug.x && cursorX <=(bug.x+bugImage.width) && cursorY>=bug.y && cursorY<=(bug.y+bugImage.height)){ctx.fillText("; bug Y :"+bug.y,32,32);
+           
+            if(bug.hopping_interval>100){
+                bug.hopping_interval-=100;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);  // clear canvas
+            bug.x = (Math.random() * (canvas.width - bugImage.width));
+            bug.y = (Math.random() * (canvas.height - bugImage.height));
+            ctx.drawImage(bgImage, 0, 0);
+            ctx.drawImage(bugImage,bug.x , bug.y);
+            score++;
+            document.getElementById('score_value').innerHTML = String(score);
+            clearTimeout(timeout);
+            timeout = setTimeout(timeOutFunction, bug.hopping_interval);
+        }
+    }
+
+    function timeOutFunction(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);  // clear canvas
+        bug.x = (Math.random() * (canvas.width - bugImage.width));
+        bug.y = (Math.random() * (canvas.height - bugImage.height));
+        ctx.drawImage(bgImage, 0, 0);
+        ctx.drawImage(bugImage,bug.x , bug.y);
+        clearTimeout(timeout);
+        timeout = setTimeout(timeOutFunction, bug.hopping_interval);
+    }
+
+
+    var w = window;
+    requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
+
+    var startGame = function () {
+        reset();
+        // Request to do this again ASAP
+        requestAnimationFrame(main);
+    };
+
+
+
+
+
+</script>
+
+</body>
+</html>
